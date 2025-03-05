@@ -90,3 +90,7 @@ collegeData.initialize()
         app.listen(HTTP_PORT, () => console.log(`Server running on port ${HTTP_PORT}`));
     })
     .catch(err => console.log("Error initializing data:", err));
+
+
+    module.exports = app;
+
