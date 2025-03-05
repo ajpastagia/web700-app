@@ -12,10 +12,10 @@ const collegeData = require("./collegeData"); // Import collegeData module
 const app = express();
 const HTTP_PORT = process.env.PORT || 8080;
 
-// Step 1: Serve static files from the "public" directory
-app.use(express.static("public"));
+// ✅ Serve static files from "public"
+app.use(express.static(path.join(__dirname, "public")));
 
-// Step 2: Enable body-parser middleware to handle form submissions
+// ✅ Enable body-parser middleware for form submissions
 app.use(express.urlencoded({ extended: true }));
 
 // ✅ Route: Home Page
@@ -84,13 +84,14 @@ app.use((req, res) => {
     res.status(404).send("Page Not Found");
 });
 
-// ✅ Initialize Data and Start Server
-collegeData.initialize()
-    .then(() => {
-        app.listen(HTTP_PORT, () => console.log(`Server running on port ${HTTP_PORT}`));
-    })
-    .catch(err => console.log("Error initializing data:", err));
+// ✅ Export app for Vercel (Serverless Functions)
+module.exports = app;
 
-
-    module.exports = app;
-
+// ✅ Initialize Data and Start Server (Only for local testing)
+if (require.main === module) {
+    collegeData.initialize()
+        .then(() => {
+            app.listen(HTTP_PORT, () => console.log(`Server running on port ${HTTP_PORT}`));
+        })
+        .catch(err => console.log("Error initializing data:", err));
+}
