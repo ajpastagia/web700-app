@@ -1,4 +1,9 @@
 const fs = require("fs");
+const path = require("path");
+
+// ✅ Define absolute paths for JSON files
+const studentsFilePath = path.join(__dirname, "data", "students.json");
+const coursesFilePath = path.join(__dirname, "data", "courses.json");
 
 class Data {
     constructor(students, courses) {
@@ -9,17 +14,18 @@ class Data {
 
 let dataCollection = null;
 
+// ✅ Initialize Data by Reading JSON Files
 module.exports.initialize = function () {
     return new Promise((resolve, reject) => {
-        fs.readFile('./data/courses.json', 'utf8', (err, courseData) => {
+        fs.readFile(coursesFilePath, "utf8", (err, courseData) => {
             if (err) {
-                reject("unable to load courses");
+                reject("Unable to load courses");
                 return;
             }
 
-            fs.readFile('./data/students.json', 'utf8', (err, studentData) => {
+            fs.readFile(studentsFilePath, "utf8", (err, studentData) => {
                 if (err) {
-                    reject("unable to load students");
+                    reject("Unable to load students");
                     return;
                 }
 
@@ -30,22 +36,28 @@ module.exports.initialize = function () {
     });
 };
 
+// ✅ Get All Students
 module.exports.getAllStudents = function () {
     return new Promise((resolve, reject) => {
-        if (dataCollection.students.length === 0) {
-            reject("query returned 0 results");
+        if (!dataCollection || dataCollection.students.length === 0) {
+            reject("Query returned 0 results");
             return;
         }
         resolve(dataCollection.students);
     });
 };
 
+// ✅ Get Teaching Assistants (TAs)
 module.exports.getTAs = function () {
     return new Promise((resolve, reject) => {
-        const filteredStudents = dataCollection.students.filter(student => student.TA === true);
+        if (!dataCollection) {
+            reject("Data not initialized");
+            return;
+        }
 
+        const filteredStudents = dataCollection.students.filter(student => student.TA === true);
         if (filteredStudents.length === 0) {
-            reject("query returned 0 results");
+            reject("Query returned 0 results");
             return;
         }
 
@@ -53,22 +65,28 @@ module.exports.getTAs = function () {
     });
 };
 
+// ✅ Get All Courses
 module.exports.getCourses = function () {
     return new Promise((resolve, reject) => {
-        if (dataCollection.courses.length === 0) {
-            reject("query returned 0 results");
+        if (!dataCollection || dataCollection.courses.length === 0) {
+            reject("Query returned 0 results");
             return;
         }
         resolve(dataCollection.courses);
     });
 };
 
+// ✅ Get Student by Student Number
 module.exports.getStudentByNum = function (num) {
     return new Promise((resolve, reject) => {
-        const student = dataCollection.students.find(student => student.studentNum == num);
+        if (!dataCollection) {
+            reject("Data not initialized");
+            return;
+        }
 
+        const student = dataCollection.students.find(student => student.studentNum == num);
         if (!student) {
-            reject("query returned 0 results");
+            reject("Query returned 0 results");
             return;
         }
 
@@ -76,22 +94,23 @@ module.exports.getStudentByNum = function (num) {
     });
 };
 
+// ✅ Get Students by Course
 module.exports.getStudentsByCourse = function (course) {
     return new Promise((resolve, reject) => {
-        const filteredStudents = dataCollection.students.filter(student => student.course == course);
+        if (!dataCollection) {
+            reject("Data not initialized");
+            return;
+        }
 
+        const filteredStudents = dataCollection.students.filter(student => student.course == course);
         if (filteredStudents.length === 0) {
-            reject("query returned 0 results");
+            reject("Query returned 0 results");
             return;
         }
 
         resolve(filteredStudents);
     });
 };
-
-const path = require("path");
-
-const filePath = path.join(__dirname, "data", "students.json");
 
 // ✅ Function to Add a New Student and Save to `students.json`
 module.exports.addStudent = function (studentData) {
@@ -101,7 +120,7 @@ module.exports.addStudent = function (studentData) {
             return;
         }
 
-        // Ensure TA checkbox value is correctly stored as true or false
+        // Ensure TA checkbox value is stored as true/false
         studentData.TA = studentData.TA ? true : false;
 
         // Assign a unique student number
@@ -111,7 +130,7 @@ module.exports.addStudent = function (studentData) {
         dataCollection.students.push(studentData);
 
         // Write updated students array back to `students.json`
-        fs.writeFile(filePath, JSON.stringify(dataCollection.students, null, 4), "utf8", (err) => {
+        fs.writeFile(studentsFilePath, JSON.stringify(dataCollection.students, null, 4), "utf8", (err) => {
             if (err) {
                 reject("Unable to write to students.json: " + err);
             } else {
@@ -120,4 +139,3 @@ module.exports.addStudent = function (studentData) {
         });
     });
 };
-
