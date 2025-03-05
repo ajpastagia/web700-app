@@ -88,3 +88,36 @@ module.exports.getStudentsByCourse = function (course) {
         resolve(filteredStudents);
     });
 };
+
+const path = require("path");
+
+const filePath = path.join(__dirname, "data", "students.json");
+
+// ✅ Function to Add a New Student and Save to `students.json`
+module.exports.addStudent = function (studentData) {
+    return new Promise((resolve, reject) => {
+        if (!dataCollection || !dataCollection.students) {
+            reject("Data not initialized");
+            return;
+        }
+
+        // Ensure TA checkbox value is correctly stored as true or false
+        studentData.TA = studentData.TA ? true : false;
+
+        // Assign a unique student number
+        studentData.studentNum = dataCollection.students.length + 1;
+
+        // Add new student to the students array in memory
+        dataCollection.students.push(studentData);
+
+        // Write updated students array back to `students.json`
+        fs.writeFile(filePath, JSON.stringify(dataCollection.students, null, 4), "utf8", (err) => {
+            if (err) {
+                reject("Unable to write to students.json: " + err);
+            } else {
+                resolve();
+            }
+        });
+    });
+};
+
