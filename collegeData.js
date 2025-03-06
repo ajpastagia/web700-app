@@ -14,7 +14,7 @@ class Data {
 
 let dataCollection = null;
 
-// ✅ Initialize Data
+// ✅ Initialize Data (Read JSON Files)
 module.exports.initialize = function () {
     return new Promise((resolve, reject) => {
         fs.readFile(coursesFilePath, "utf8", (err, courseData) => {
@@ -29,6 +29,7 @@ module.exports.initialize = function () {
                     return reject("Unable to load students");
                 }
 
+                // ✅ Load students and courses into memory (NO FILE WRITING)
                 dataCollection = new Data(JSON.parse(studentData), JSON.parse(courseData));
                 console.log("✅ Data successfully loaded.");
                 resolve();
@@ -41,8 +42,7 @@ module.exports.initialize = function () {
 module.exports.getAllStudents = function () {
     return new Promise((resolve, reject) => {
         if (!dataCollection) {
-            reject("Data not initialized");
-            return;
+            return reject("Data not initialized");
         }
         resolve(dataCollection.students);
     });
@@ -52,8 +52,7 @@ module.exports.getAllStudents = function () {
 module.exports.getTAs = function () {
     return new Promise((resolve, reject) => {
         if (!dataCollection) {
-            reject("Data not initialized");
-            return;
+            return reject("Data not initialized");
         }
 
         const filteredStudents = dataCollection.students.filter(student => student.TA === true);
@@ -65,8 +64,7 @@ module.exports.getTAs = function () {
 module.exports.getCourses = function () {
     return new Promise((resolve, reject) => {
         if (!dataCollection) {
-            reject("Data not initialized");
-            return;
+            return reject("Data not initialized");
         }
         resolve(dataCollection.courses);
     });
@@ -76,11 +74,13 @@ module.exports.getCourses = function () {
 module.exports.getStudentByNum = function (num) {
     return new Promise((resolve, reject) => {
         if (!dataCollection) {
-            reject("Data not initialized");
-            return;
+            return reject("Data not initialized");
         }
 
         const student = dataCollection.students.find(student => student.studentNum == num);
+        if (!student) {
+            return reject("Query returned 0 results");
+        }
         resolve(student);
     });
 };
@@ -89,8 +89,7 @@ module.exports.getStudentByNum = function (num) {
 module.exports.getStudentsByCourse = function (course) {
     return new Promise((resolve, reject) => {
         if (!dataCollection) {
-            reject("Data not initialized");
-            return;
+            return reject("Data not initialized");
         }
 
         const filteredStudents = dataCollection.students.filter(student => student.course == course);
@@ -98,21 +97,18 @@ module.exports.getStudentsByCourse = function (course) {
     });
 };
 
-// ✅ Add a New Student
+// ✅ Add a New Student (ONLY in Memory - NO FILE WRITING)
 module.exports.addStudent = function (studentData) {
     return new Promise((resolve, reject) => {
         if (!dataCollection) {
-            reject("Data not initialized");
-            return;
+            return reject("Data not initialized");
         }
 
         studentData.TA = studentData.TA ? true : false;
         studentData.studentNum = dataCollection.students.length + 1;
-        dataCollection.students.push(studentData);
 
-        fs.writeFile(studentsFilePath, JSON.stringify(dataCollection.students, null, 4), "utf8", (err) => {
-            if (err) reject("Error writing to students.json: " + err);
-            else resolve();
-        });
+        // ✅ Add to in-memory array (NO FILE WRITING)
+        dataCollection.students.push(studentData);
+        resolve();
     });
 };
