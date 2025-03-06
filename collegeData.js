@@ -30,16 +30,26 @@ module.exports.initialize = function () {
                 }
 
                 dataCollection = new Data(JSON.parse(studentData), JSON.parse(courseData));
+                console.log("✅ Data initialized successfully.");
                 resolve();
             });
         });
     });
 };
 
+// ✅ Function to check if data is initialized
+module.exports.isInitialized = function () {
+    return dataCollection !== null;
+};
+
 // ✅ Get All Students
 module.exports.getAllStudents = function () {
     return new Promise((resolve, reject) => {
-        if (!dataCollection || dataCollection.students.length === 0) {
+        if (!dataCollection) {
+            reject("Data is still loading. Try again later.");
+            return;
+        }
+        if (dataCollection.students.length === 0) {
             reject("Query returned 0 results");
             return;
         }
@@ -68,7 +78,11 @@ module.exports.getTAs = function () {
 // ✅ Get All Courses
 module.exports.getCourses = function () {
     return new Promise((resolve, reject) => {
-        if (!dataCollection || dataCollection.courses.length === 0) {
+        if (!dataCollection) {
+            reject("Data not initialized");
+            return;
+        }
+        if (dataCollection.courses.length === 0) {
             reject("Query returned 0 results");
             return;
         }

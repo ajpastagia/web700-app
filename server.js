@@ -18,6 +18,14 @@ app.use(express.static(path.join(__dirname, "public")));
 // ✅ Enable body-parser middleware for form submissions
 app.use(express.urlencoded({ extended: true }));
 
+// ✅ Middleware to check if data is initialized
+app.use((req, res, next) => {
+    if (!collegeData.isInitialized()) {
+        return res.status(503).send("Service Unavailable: Data is still loading.");
+    }
+    next();
+});
+
 // ✅ Route: Home Page
 app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "views", "home.html"));
@@ -84,14 +92,14 @@ app.use((req, res) => {
     res.status(404).send("Page Not Found");
 });
 
-// ✅ Export app for Vercel (Serverless Functions)
-module.exports = app;
+// ✅ Initialize Data and Start Server
+collegeData.initialize()
+    .then(() => {
+        app.listen(HTTP_PORT, () => console.log(`Server running on port ${HTTP_PORT}`));
+    })
+    .catch(err => {
+        console.error("Error initializing data:", err);
+        process.exit(1); // Exit process if data loading fails
+    });
 
-// ✅ Initialize Data and Start Server (Only for local testing)
-if (require.main === module) {
-    collegeData.initialize()
-        .then(() => {
-            app.listen(HTTP_PORT, () => console.log(`Server running on port ${HTTP_PORT}`));
-        })
-        .catch(err => console.log("Error initializing data:", err));
-}
+module.exports = app;
