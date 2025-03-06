@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 
-// ✅ Define absolute paths for JSON files
+// ✅ Define paths for JSON files
 const studentsFilePath = path.join(__dirname, "data", "students.json");
 const coursesFilePath = path.join(__dirname, "data", "courses.json");
 
@@ -14,43 +14,34 @@ class Data {
 
 let dataCollection = null;
 
-// ✅ Initialize Data by Reading JSON Files
+// ✅ Initialize Data
 module.exports.initialize = function () {
     return new Promise((resolve, reject) => {
         fs.readFile(coursesFilePath, "utf8", (err, courseData) => {
             if (err) {
-                reject("Unable to load courses");
-                return;
+                console.error("❌ Error reading courses.json:", err);
+                return reject("Unable to load courses");
             }
 
             fs.readFile(studentsFilePath, "utf8", (err, studentData) => {
                 if (err) {
-                    reject("Unable to load students");
-                    return;
+                    console.error("❌ Error reading students.json:", err);
+                    return reject("Unable to load students");
                 }
 
                 dataCollection = new Data(JSON.parse(studentData), JSON.parse(courseData));
-                console.log("✅ Data initialized successfully.");
+                console.log("✅ Data successfully loaded.");
                 resolve();
             });
         });
     });
 };
 
-// ✅ Function to check if data is initialized
-module.exports.isInitialized = function () {
-    return dataCollection !== null;
-};
-
 // ✅ Get All Students
 module.exports.getAllStudents = function () {
     return new Promise((resolve, reject) => {
         if (!dataCollection) {
-            reject("Data is still loading. Try again later.");
-            return;
-        }
-        if (dataCollection.students.length === 0) {
-            reject("Query returned 0 results");
+            reject("Data not initialized");
             return;
         }
         resolve(dataCollection.students);
@@ -66,11 +57,6 @@ module.exports.getTAs = function () {
         }
 
         const filteredStudents = dataCollection.students.filter(student => student.TA === true);
-        if (filteredStudents.length === 0) {
-            reject("Query returned 0 results");
-            return;
-        }
-
         resolve(filteredStudents);
     });
 };
@@ -80,10 +66,6 @@ module.exports.getCourses = function () {
     return new Promise((resolve, reject) => {
         if (!dataCollection) {
             reject("Data not initialized");
-            return;
-        }
-        if (dataCollection.courses.length === 0) {
-            reject("Query returned 0 results");
             return;
         }
         resolve(dataCollection.courses);
@@ -99,11 +81,6 @@ module.exports.getStudentByNum = function (num) {
         }
 
         const student = dataCollection.students.find(student => student.studentNum == num);
-        if (!student) {
-            reject("Query returned 0 results");
-            return;
-        }
-
         resolve(student);
     });
 };
@@ -117,39 +94,25 @@ module.exports.getStudentsByCourse = function (course) {
         }
 
         const filteredStudents = dataCollection.students.filter(student => student.course == course);
-        if (filteredStudents.length === 0) {
-            reject("Query returned 0 results");
-            return;
-        }
-
         resolve(filteredStudents);
     });
 };
 
-// ✅ Function to Add a New Student and Save to `students.json`
+// ✅ Add a New Student
 module.exports.addStudent = function (studentData) {
     return new Promise((resolve, reject) => {
-        if (!dataCollection || !dataCollection.students) {
+        if (!dataCollection) {
             reject("Data not initialized");
             return;
         }
 
-        // Ensure TA checkbox value is stored as true/false
         studentData.TA = studentData.TA ? true : false;
-
-        // Assign a unique student number
         studentData.studentNum = dataCollection.students.length + 1;
-
-        // Add new student to the students array in memory
         dataCollection.students.push(studentData);
 
-        // Write updated students array back to `students.json`
         fs.writeFile(studentsFilePath, JSON.stringify(dataCollection.students, null, 4), "utf8", (err) => {
-            if (err) {
-                reject("Unable to write to students.json: " + err);
-            } else {
-                resolve();
-            }
+            if (err) reject("Error writing to students.json: " + err);
+            else resolve();
         });
     });
 };
