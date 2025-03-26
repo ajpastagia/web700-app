@@ -1,5 +1,5 @@
 /*********************************************************************************
-*  WEB700 – Assignment 04
+*  WEB700 – Assignment 05
 *  I declare that this assignment is my own work in accordance with Seneca Academic Policy.
 *  Name: Akshar Jigneshkumar Pastagia     Student ID: 186241238     Date: 04/03/2025
 *  Online (Vercel) Link: https://your-web700-app.vercel.app
@@ -7,91 +7,99 @@
 
 const express = require("express");
 const path = require("path");
-const collegeData = require("./collegeData"); // Import data module
-
+const collegeData = require("./collegeData");
 const app = express();
 const HTTP_PORT = process.env.PORT || 8080;
 
-// ✅ Serve static files
-app.use(express.static(path.join(__dirname, "public")));
+// Set EJS as the View Engine
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
 
-// ✅ Enable body-parser middleware
+// Serve static files
+app.use(express.static(path.join(__dirname, "public")));
 app.use(express.urlencoded({ extended: true }));
 
-// ✅ Route: Home Page
-app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "views", "home.html"));
+// Routes
+app.get("/", (req, res) => res.render("home"));
+app.get("/about", (req, res) => res.render("about"));
+app.get("/htmlDemo", (req, res) => res.render("htmlDemo"));
+app.get("/students/add", (req, res) => res.render("addStudent"));
+
+// All Students
+app.get("/students", (req, res) => {
+    collegeData.getAllStudents()
+        .then(data => res.render("students", { students: data }))
+        .catch(() => res.render("students", { message: "No Students Found" }));
 });
 
-// ✅ Route: About Page
-app.get("/about", (req, res) => {
-    res.sendFile(path.join(__dirname, "views", "about.html"));
+// Students by Course (Fixed Route)
+// Students by Course
+app.get("/studentsByCourse", (req, res) => {
+    const courseCode = req.query.courseCode;
+
+    if (!courseCode) {
+        return res.render("students", { message: "Course code not provided." });
+    }
+
+    collegeData.getStudentsByCourse(courseCode)
+        .then((students) => {
+            if (students && students.length > 0) {
+                res.render("students", { students: students }); // Properly send 'students' to students.ejs
+            } else {
+                res.render("students", { message: `No students found for course: ${courseCode}` });
+            }
+        })
+        .catch((err) => {
+            console.error("Error retrieving students by course: ", err);
+            res.render("students", { message: "An error occurred while retrieving the course." });
+        });
 });
 
-// ✅ Route: HTML Demo Page
-app.get("/htmlDemo", (req, res) => {
-    res.sendFile(path.join(__dirname, "views", "htmlDemo.html"));
+
+
+// Single Student by Student Number (Fixed Route)
+app.get("/studentByNum", (req, res) => {
+    const studentNum = req.query.studentNum;
+    if (!studentNum) {
+        return res.render("student", { message: "Student Number is required" });
+    }
+    collegeData.getStudentByNum(studentNum)
+        .then(data => res.render("student", { student: data }))
+        .catch(() => res.render("student", { message: "No Student Found" }));
 });
 
-// ✅ Route: Show "Add Student" Form (GET)
-app.get('/students/add', (req, res) => {
-    res.sendFile(path.join(__dirname, "views", "addStudent.html"));
+// Teaching Assistants
+app.get("/tas", (req, res) => {
+    collegeData.getTAs()
+        .then(data => res.render("students", { students: data }))
+        .catch(() => res.render("students", { message: "No TAs Found" }));
 });
 
-// ✅ Route: Handle form submission to add a new student (POST)
+// All Courses
+app.get("/courses", (req, res) => {
+    collegeData.getCourses()
+        .then(data => res.render("courses", { courses: data }))
+        .catch(() => res.render("courses", { message: "No Courses Found" }));
+});
+
+// Add Student (POST)
 app.post('/students/add', (req, res) => {
     collegeData.addStudent(req.body)
         .then(() => res.redirect('/students'))
-        .catch(err => res.status(500).send("Error adding student: " + err));
+        .catch(() => res.status(500).send("Error adding student."));
 });
 
-// ✅ Route: Get All Students
-app.get("/students", (req, res) => {
-    collegeData.getAllStudents()
-        .then(data => res.json(data))
-        .catch(err => res.json({ message: "no results" }));
+// Update Student (POST)
+app.post("/student/update", (req, res) => {
+    collegeData.updateStudent(req.body)
+        .then(() => res.redirect("/students"))
+        .catch(() => res.status(500).send("Error updating student."));
 });
 
-// ✅ Route: Get All Courses
-app.get("/courses", (req, res) => {
-    collegeData.getCourses()
-        .then(data => res.json(data))
-        .catch(err => res.json({ message: "no results" }));
-});
+// 404 Error
+app.use((req, res) => res.status(404).send("Page Not Found"));
 
-// ✅ Route: Get All Teaching Assistants (TAs)
-app.get("/tas", (req, res) => {
-    collegeData.getTAs()
-        .then(data => res.json(data))
-        .catch(err => res.json({ message: "no results" }));
-});
-
-// ✅ Route: Get Student by Student Number
-app.get("/student/:num", (req, res) => {
-    collegeData.getStudentByNum(req.params.num)
-        .then(data => res.json(data))
-        .catch(err => res.json({ message: "no results" }));
-});
-
-// ✅ Route: 404 Not Found
-app.use((req, res) => {
-    res.status(404).send("Page Not Found");
-});
-
-// ✅ Initialize Data and Export for Vercel
-const startServer = async () => {
-    try {
-        await collegeData.initialize();
-        console.log("✅ Data initialization completed successfully.");
-        if (!process.env.VERCEL) {
-            app.listen(HTTP_PORT, () => console.log(`🚀 Server running on port ${HTTP_PORT}`));
-        }
-    } catch (err) {
-        console.error("❌ Error initializing data:", err);
-    }
-};
-
-startServer();
-
-// ✅ Export the app for Vercel
-module.exports = app;
+// Start Server
+collegeData.initialize().then(() => {
+    app.listen(HTTP_PORT, () => console.log(`Server running on port ${HTTP_PORT}`));
+}).catch(err => console.log(err));

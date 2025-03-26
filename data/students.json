@@ -4,12 +4,9 @@
         "firstName": "Foster",
         "lastName": "Thorburn",
         "email": "fthorburn0@mySeneca.ca",
-        "addressStreet": "8 Arapahoe Park",
-        "addressCity": "Toronto",
-        "addressProvince": "ON",
         "TA": true,
         "status": "Full Time",
-        "course": 2
+        "course": "2"
     },
     {
         "studentNum": 2,
@@ -21,7 +18,7 @@
         "addressProvince": "ON",
         "TA": true,
         "status": "Full Time",
-        "course": 2
+        "course": "2"
     },
     {
         "studentNum": 3,
@@ -41,11 +38,11 @@
         "lastName": "Bollon",
         "email": "abollon3@mySeneca.ca",
         "addressStreet": "0464 Mitchell Road",
-        "addressCity": "Toronto",
+        "addressCity": "Scarborough",
         "addressProvince": "ON",
         "TA": true,
         "status": "Full Time",
-        "course": 4
+        "course": "4"
     },
     {
         "studentNum": 5,
@@ -112,12 +109,12 @@
         "firstName": "Beatrisa",
         "lastName": "Wanne",
         "email": "bwanne9@mySeneca.ca",
-        "addressStreet": "9 Lotheville Trail",
-        "addressCity": "Toronto",
-        "addressProvince": "ON",
+        "addressStreet": "",
+        "addressCity": "",
+        "addressProvince": "",
         "TA": true,
         "status": "Full Time",
-        "course": 3
+        "course": "3"
     },
     {
         "studentNum": 11,
@@ -133,7 +130,7 @@
     },
     {
         "studentNum": 12,
-        "firstName": "Vilma",
+        "firstName": "Vilma parekh",
         "lastName": "Chrichton",
         "email": "vchrichtonb@mySeneca.ca",
         "addressStreet": "5 Longview Park",
@@ -141,7 +138,7 @@
         "addressProvince": "ON",
         "TA": true,
         "status": "Full Time",
-        "course": 5
+        "course": "5"
     },
     {
         "studentNum": 13,
@@ -221,11 +218,11 @@
         "lastName": "Hofler",
         "email": "ahofleri@mySeneca.ca",
         "addressStreet": "1 Cody Junction",
-        "addressCity": "Toronto",
+        "addressCity": "Markham",
         "addressProvince": "ON",
         "TA": true,
         "status": "Full Time",
-        "course": 5
+        "course": "5"
     },
     {
         "studentNum": 20,
@@ -3126,6 +3123,13 @@
         "course": "BTT",
         "TA": true,
         "studentNum": 261
+    },
+    {
+        "firstName": "Ankit",
+        "lastName": "Gajjar",
+        "email": "AG45@gmail.com",
+        "course": "Aviation",
+        "TA": true,
+        "studentNum": 262
     }
 ]
-

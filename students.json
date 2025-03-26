@@ -3353,4 +3353,33 @@
     "status": "Part Time",
     "course": 5
   }
-]
+]// Improved code with added functionality to filter students by course and status
+// and to calculate the total number of students in each course
+
+const students = [
+  // ... (rest of the students data)
+];
+
+// Function to filter students by course and status
+function filterStudents(course, status) {
+  return students.filter(student => student.course === course && student.status === status);
+}
+
+// Function to calculate the total number of students in each course
+function calculateStudentCountByCourse() {
+  const courseCounts = {};
+  students.forEach(student => {
+    if (!courseCounts[student.course]) {
+      courseCounts[student.course] = 0;
+    }
+    courseCounts[student.course]++;
+  });
+  return courseCounts;
+}
+
+// Example usage:
+const filteredStudents = filterStudents(2, 'Full Time');
+console.log(filteredStudents);
+
+const studentCountsByCourse = calculateStudentCountByCourse();
+console.log(studentCountsByCourse);
